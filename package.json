@@ -1,0 +1,25 @@
+{
+  "name": "chatbot",
+  "version": "1.0.0",
+  "description": "一个简单的聊天机器人",
+  "main": "main.test",
+  "type": "module",
+  "scripts": {
+    "start": "tsx main.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.16.1",
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.0.3",
+    "@langchain/openai": "^1.0.0",
+    "dotenv": "^17.2.3",
+    "openai": "^6.8.1"
+  }
+}
