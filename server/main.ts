@@ -1,5 +1,4 @@
 import readline from 'readline'
-import dotenv from 'dotenv'
 import { ChatOpenAI } from '@langchain/openai'
 import {
   AIMessage,
