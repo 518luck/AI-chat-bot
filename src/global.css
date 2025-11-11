@@ -119,3 +119,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+[data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: #aaa;
+  pointer-events: none;
+}
