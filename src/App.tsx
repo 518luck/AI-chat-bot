@@ -17,11 +17,11 @@ function App() {
       </section> */}
       {/* 底部输入框 */}
       <section className="bg-background flex w-full max-w-160 rounded-[28px] border px-2 shadow-sm">
-        <div className="relative flex w-full">
+        <div className="relative flex max-h-66.5 min-h-[56px] w-full items-center">
           <div
             contentEditable
             suppressContentEditableWarning
-            className="max-h-32 min-h-[56px] w-full overflow-auto px-4 py-2 pr-12 outline-none"
+            className="max-h-66.5 w-full overflow-x-hidden overflow-y-auto px-4 py-2 pr-12 wrap-break-word whitespace-pre-wrap outline-none"
             data-placeholder="询问任何问题"
           />
           <div className="absolute right-2 bottom-2 cursor-pointer rounded-full bg-black p-1.5">
