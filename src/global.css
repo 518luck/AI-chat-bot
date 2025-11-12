@@ -121,12 +121,15 @@
 }
 
 
-[data-placeholder]:empty::before {
-  content: attr(data-placeholder);
-  color: #aaa;
-  pointer-events: none;
-}
 
 .ProseMirror {
   outline: none;
+  position: relative;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #adb5bd;
+  pointer-events: none;
+  position: absolute;
 }

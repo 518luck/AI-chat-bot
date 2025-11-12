@@ -11,13 +11,12 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.17",
+    "@tiptap/extension-placeholder": "^3.10.5",
+    "@tiptap/react": "^3.10.5",
+    "@tiptap/starter-kit": "^3.10.5",
     "lucide-react": "^0.553.0",
     "modern-normalize": "^3.0.1",
     "pnpm": "^10.21.0",
-    "prosemirror-model": "^1.25.4",
-    "prosemirror-schema-basic": "^1.2.4",
-    "prosemirror-state": "^1.4.4",
-    "prosemirror-view": "^1.41.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "tailwindcss": "^4.1.17"
