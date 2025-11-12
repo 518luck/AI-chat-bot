@@ -126,3 +126,7 @@
   color: #aaa;
   pointer-events: none;
 }
+
+.ProseMirror {
+  outline: none;
+}

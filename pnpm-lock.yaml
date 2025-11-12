@@ -23,6 +23,18 @@ importers:
       pnpm:
         specifier: ^10.21.0
         version: 10.21.0
+      prosemirror-model:
+        specifier: ^1.25.4
+        version: 1.25.4
+      prosemirror-schema-basic:
+        specifier: ^1.2.4
+        version: 1.2.4
+      prosemirror-state:
+        specifier: ^1.4.4
+        version: 1.4.4
+      prosemirror-view:
+        specifier: ^1.41.3
+        version: 1.41.3
       react:
         specifier: ^19.1.1
         version: 19.2.0
@@ -983,6 +995,9 @@ packages:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
     engines: {node: '>= 0.8.0'}
 
+  orderedmap@2.1.1:
+    resolution: {integrity: sha512-TvAWxi0nDe1j/rtMcWcIj94+Ffe6n7zhow33h40SKxmsmozs6dz/e+EajymfoFcHd7sxNn8yHM8839uixMOV6g==}
+
   p-limit@3.1.0:
     resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
     engines: {node: '>=10'}
@@ -1086,6 +1101,21 @@ packages:
     resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
     engines: {node: '>=14'}
     hasBin: true
+
+  prosemirror-model@1.25.4:
+    resolution: {integrity: sha512-PIM7E43PBxKce8OQeezAs9j4TP+5yDpZVbuurd1h5phUxEKIu+G2a+EUZzIC5nS1mJktDJWzbqS23n1tsAf5QA==}
+
+  prosemirror-schema-basic@1.2.4:
+    resolution: {integrity: sha512-ELxP4TlX3yr2v5rM7Sb70SqStq5NvI15c0j9j/gjsrO5vaw+fnnpovCLEGIcpeGfifkuqJwl4fon6b+KdrODYQ==}
+
+  prosemirror-state@1.4.4:
+    resolution: {integrity: sha512-6jiYHH2CIGbCfnxdHbXZ12gySFY/fz/ulZE333G6bPqIZ4F+TXo9ifiR86nAHpWnfoNjOb3o5ESi7J8Uz1jXHw==}
+
+  prosemirror-transform@1.10.5:
+    resolution: {integrity: sha512-RPDQCxIDhIBb1o36xxwsaeAvivO8VLJcgBtzmOwQ64bMtsVFh5SSuJ6dWSxO1UsHTiTXPCgQm3PDJt7p6IOLbw==}
+
+  prosemirror-view@1.41.3:
+    resolution: {integrity: sha512-SqMiYMUQNNBP9kfPhLO8WXEk/fon47vc52FQsUiJzTBuyjKgEcoAwMyF04eQ4WZ2ArMn7+ReypYL60aKngbACQ==}
 
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
@@ -2137,6 +2167,8 @@ snapshots:
       type-check: 0.4.0
       word-wrap: 1.2.5
 
+  orderedmap@2.1.1: {}
+
   p-limit@3.1.0:
     dependencies:
       yocto-queue: 0.1.0
@@ -2174,6 +2206,30 @@ snapshots:
       prettier: 3.6.2
 
   prettier@3.6.2: {}
+
+  prosemirror-model@1.25.4:
+    dependencies:
+      orderedmap: 2.1.1
+
+  prosemirror-schema-basic@1.2.4:
+    dependencies:
+      prosemirror-model: 1.25.4
+
+  prosemirror-state@1.4.4:
+    dependencies:
+      prosemirror-model: 1.25.4
+      prosemirror-transform: 1.10.5
+      prosemirror-view: 1.41.3
+
+  prosemirror-transform@1.10.5:
+    dependencies:
+      prosemirror-model: 1.25.4
+
+  prosemirror-view@1.41.3:
+    dependencies:
+      prosemirror-model: 1.25.4
+      prosemirror-state: 1.4.4
+      prosemirror-transform: 1.10.5
 
   punycode@2.3.1: {}
 
