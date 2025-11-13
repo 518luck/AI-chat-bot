@@ -4,8 +4,11 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 
 import "./global.css";
+import { useState } from "react";
 
 function App() {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -13,14 +16,17 @@ function App() {
         placeholder: "询问任何问题",
       }),
     ],
-  });
-  const editor2 = useEditor({
-    extensions: [
-      StarterKit,
-      Placeholder.configure({
-        placeholder: "询问任何问题",
-      }),
-    ],
+    onUpdate: ({ editor }) => {
+      // 如果输入框一旦换行,就一直展开,为空的时候再缩起来
+      const contentHeight = editor.view.dom.scrollHeight;
+      if (contentHeight > 20) {
+        setIsExpanded(true);
+      }
+      const isEmpty = editor.isEmpty;
+      if (isEmpty) {
+        setIsExpanded(false);
+      }
+    },
   });
 
   return (
@@ -38,39 +44,18 @@ function App() {
       </section> */}
       {/* 测试  ProseMirror */}
       {/* 底部输入框 */}
-      <section className="bg-background flex w-full max-w-160 rounded-[28px] border px-2 shadow-sm">
-        <div className="relative flex max-h-66.5 min-h-[56px] w-full items-center">
+      <section className="bg-background flex w-full max-w-171 rounded-[28px] border p-2 shadow-sm">
+        <div
+          className={`justify-between" flex max-h-56 min-h-[38px] w-full items-center ${isExpanded ? "flex-col" : ""}`}
+        >
           <EditorContent
             editor={editor}
-            className="max-h-66.5 w-full overflow-x-hidden px-4 py-2 pr-12 outline-none"
+            className="max-h-66.5 w-full flex-99 overflow-x-hidden p-2"
           />
-          {/* <div
-            contentEditable
-            suppressContentEditableWarning
-            className="max-h-66.5 w-full overflow-x-hidden overflow-y-auto px-4 py-2 pr-12 wrap-break-word whitespace-pre-wrap outline-none"
-            data-placeholder="询问任何问题"
-          /> */}
-          <div className="absolute right-2 bottom-2 cursor-pointer rounded-full bg-black p-1.5">
-            <ArrowUp color="#fff" />
-          </div>
-        </div>
-      </section>
-
-      {/* 输入框的第二个内容 */}
-      <section className="bg-background flex w-full max-w-160 rounded-[28px] border px-2 shadow-sm">
-        <div className="relative flex max-h-66.5 min-h-[56px] w-full items-center">
-          <EditorContent
-            editor={editor2}
-            className="max-h-66.5 w-full overflow-x-hidden px-4 py-2 pr-12 outline-none"
-          />
-          {/* <div
-            contentEditable
-            suppressContentEditableWarning
-            className="max-h-66.5 w-full overflow-x-hidden overflow-y-auto px-4 py-2 pr-12 wrap-break-word whitespace-pre-wrap outline-none"
-            data-placeholder="询问任何问题"
-          /> */}
-          <div className="absolute right-2 bottom-2 cursor-pointer rounded-full bg-black p-1.5">
-            <ArrowUp color="#fff" />
+          <div className="flex w-full flex-1 justify-end">
+            <div className="cursor-pointer rounded-full bg-black p-1.5">
+              <ArrowUp color="#fff" />
+            </div>
           </div>
         </div>
       </section>
