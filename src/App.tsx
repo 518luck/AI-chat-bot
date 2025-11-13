@@ -17,6 +17,7 @@ function App() {
       }),
     ],
     onUpdate: ({ editor }) => {
+      console.log("🚀 ~ App ~ editor:", editor.getHTML());
       // 如果输入框一旦换行,就一直展开,为空的时候再缩起来
       const contentHeight = editor.view.dom.scrollHeight;
       if (contentHeight > 20) {
@@ -27,6 +28,13 @@ function App() {
         setIsExpanded(false);
       }
     },
+  });
+
+  editor?.on("paste", ({ event }) => {
+    event.preventDefault(); // 阻止默认行为,要不然浏览器会直接粘贴HTML
+    const pastedText =
+      event.clipboardData?.getData("text/plain").replace(/\n/g, "") || "";
+    editor.commands.insertContent(pastedText);
   });
 
   return (
