@@ -7,6 +7,7 @@ import {
   SystemMessage,
   type BaseMessage,
 } from "@langchain/core/messages";
+import cors from "cors";
 
 const API_KEY = process.env.API_KEY;
 const BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1";
@@ -60,11 +61,19 @@ const messages: BaseMessage[] = [
 const app = express();
 //添加JSON请求体解析中间件
 app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: false,
+  }),
+);
 
 //历史消息(暂时不写)
 
 const sseHandler = async (req: Request, res: Response) => {
   let query = "";
+  console.log("🚀 ~ sseHandler ~ req:", req.body);
   if (req.method === "GET") {
     query = req.query.query as unknown as string;
   }

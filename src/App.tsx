@@ -44,6 +44,40 @@ function App() {
     },
   });
 
+  const handleSubmit = async (text: string) => {
+    const res = await fetch("http://localhost:3000/sse", {
+      method: "POST",
+      body: JSON.stringify({
+        query: text,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const reader = res.body?.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      //value是后端返回值(是二进制), done代表这个流有没有读完
+      const { value, done } = (await reader?.read()) || {};
+      if (done) break;
+
+      const text = decoder.decode(value);
+      const lines = text.split("\n\n");
+
+      for (const line of lines) {
+        if (line.startsWith("data:")) {
+          const json = JSON.parse(line.slice(5));
+          // console.log("分片内容:", json.payload.content);
+        }
+        if (line.startsWith("event: close")) {
+          // console.log("SSE 已结束");
+        }
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col dark:bg-[#212121]">
       {/* 顶部状态栏 */}
@@ -139,8 +173,7 @@ function App() {
         <EditInput
           isExpanded={isExpanded}
           editor={editor}
-          isMessageEmpty={isMessageEmpty}
-          setIsMessageEmpty={setIsMessageEmpty}
+          handleSubmit={handleSubmit}
         />
       </footer>
     </div>

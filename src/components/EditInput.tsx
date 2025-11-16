@@ -5,15 +5,9 @@ import { ArrowUp } from "lucide-react";
 interface EditInputProps {
   isExpanded: boolean; //是否展开
   editor: Editor; //编辑器实例
-  isMessageEmpty: boolean; //输入框是否为空
-  setIsMessageEmpty: (isMessageEmpty: boolean) => void; //设置输入框是否为空
+  handleSubmit: (text: string) => void; //设置输入框是否为空
 }
-const EditInput = ({
-  isExpanded,
-  editor,
-  isMessageEmpty,
-  setIsMessageEmpty,
-}: EditInputProps) => {
+const EditInput = ({ isExpanded, editor, handleSubmit }: EditInputProps) => {
   return (
     <section className="flex w-full max-w-3xl rounded-[28px] border p-2 shadow-sm dark:bg-[#303030]">
       <div
@@ -30,7 +24,7 @@ const EditInput = ({
         />
         <div
           className="flex w-full flex-1 justify-end"
-          onClick={() => setIsMessageEmpty(!isMessageEmpty)}
+          onClick={() => handleSubmit(editor.getText())}
         >
           <div className="cursor-pointer rounded-full bg-black p-1.5 dark:bg-white">
             <ArrowUp className="text-white dark:text-black" />
