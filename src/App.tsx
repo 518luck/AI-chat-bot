@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { ArrowUp, ChevronDown, Sun, MoonStar } from "lucide-react";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { ChevronDown, Sun, MoonStar } from "lucide-react";
+import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { PasteFilter } from "@/utils/PasteFilter";
 import cs from "classnames";
+
+import EditInput from "@/components/EditInput";
 
 import "./global.css";
 
@@ -87,12 +89,12 @@ function App() {
       </section>
 
       <main
-        className={cs("flex w-full justify-center", {
+        className={cs("flex w-full justify-center py-2", {
           "mt-40": isMessageEmpty,
           "h-[calc(100vh-64px-96px)] overflow-y-auto": !isMessageEmpty,
         })}
       >
-        <section className="max-w-3xl">
+        <section className="max-w-[750px]">
           {/* 标题 */}
           {isMessageEmpty && (
             <section>
@@ -104,52 +106,42 @@ function App() {
           {!isMessageEmpty && (
             <section>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((item) => (
-                <>
-                  <div>
+                <div
+                  className={cs("flex", {
+                    "justify-end": item % 2 !== 0,
+                  })}
+                >
+                  <div
+                    className={cs(
+                      "mb-9 inline-flex min-h-9 w-fit flex-col rounded-2xl p-4",
+                      { "max-w-[448px] bg-[#303030]": item % 2 !== 0 },
+                    )}
+                  >
+                    outline outline-1
+                    outline-amber-100为什么这个线只会出现在下边框 outline
+                    outline-1 outline-amber-100为什么这个线只会出现在下边框
                     outline outline-1
                     outline-amber-100为什么这个线只会出现在下边框
                   </div>
-                  <div>
-                    重点：outline
-                    不是边框，它不会只画“下边框”。它默认是画在元素四周一圈的。
-                    你看到它只在下边，是因为你的元素本身布局导致其它三边被“挡住”或“不可见”。
-                  </div>
-                </>
+                </div>
               ))}
             </section>
           )}
         </section>
       </main>
 
+      {/* 底部输入框 */}
       <footer
         className={cs("bottom-8 z-10 flex w-full justify-center", {
           sticky: !isExpanded,
         })}
       >
-        {/* 底部输入框 */}
-        <section className="flex w-full max-w-3xl rounded-[28px] border p-2 shadow-sm dark:bg-[#303030]">
-          <div
-            className={cs(
-              "flex max-h-56 min-h-[38px] w-full items-center justify-between",
-              {
-                "flex-col": isExpanded,
-              },
-            )}
-          >
-            <EditorContent
-              editor={editor}
-              className="max-h-66.5 w-full flex-99 overflow-x-hidden p-2"
-            />
-            <div
-              className="flex w-full flex-1 justify-end"
-              onClick={() => setIsMessageEmpty(!isMessageEmpty)}
-            >
-              <div className="cursor-pointer rounded-full bg-black p-1.5 dark:bg-white">
-                <ArrowUp className="text-white dark:text-black" />
-              </div>
-            </div>
-          </div>
-        </section>
+        <EditInput
+          isExpanded={isExpanded}
+          editor={editor}
+          isMessageEmpty={isMessageEmpty}
+          setIsMessageEmpty={setIsMessageEmpty}
+        />
       </footer>
     </div>
   );

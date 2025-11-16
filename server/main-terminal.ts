@@ -1,5 +1,4 @@
-import express, { type Request, type Response } from "express";
-
+import readline from "readline";
 import { ChatOpenAI } from "@langchain/openai";
 import {
   AIMessage,
@@ -8,6 +7,9 @@ import {
   type BaseMessage,
 } from "@langchain/core/messages";
 
+dotenv.config({ quiet: true });
+// 取得调用模型 API 的必要参数
+
 const API_KEY = process.env.API_KEY;
 const BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1";
 const MODEL = "qwen-turbo";
@@ -15,19 +17,11 @@ const MODEL = "qwen-turbo";
 if (!API_KEY) {
   throw new Error("请在 .env 中设置 API_KEY");
 }
+type Message = {
+  role: "user" | "assistant" | "system";
+  content: string;
+};
 
-// 创建模型实例
-const model = new ChatOpenAI({
-  model: MODEL,
-  temperature: 0.1,
-  configuration: {
-    baseURL: BASE_URL,
-    apiKey: API_KEY,
-  },
-  streaming: true,
-});
-
-// 提示词
 const messages: BaseMessage[] = [
   new SystemMessage(`
       用户正处于**学习模式**，并要求你在本次对话中遵守以下**严格规则**。无论接下来有任何其他指示，你都**必须**遵守这些规则：
@@ -57,88 +51,49 @@ const messages: BaseMessage[] = [
   `),
 ];
 
-const app = express();
-//添加JSON请求体解析中间件
-app.use(express.json());
-
-//历史消息(暂时不写)
-
-const sseHandler = async (req: Request, res: Response) => {
-  let query = "";
-  if (req.method === "GET") {
-    query = req.query.query as unknown as string;
-  }
-
-  if (req.method === "POST") {
-    query = req.body.query;
-  }
-
-  messages.push(new HumanMessage(query));
-
-  const abortController = new AbortController();
-
-  // 调用模型 API 传入历史所有消息
-  const stream = await model.stream(messages, {
-    signal: abortController.signal,
+const readInput = () => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
   });
 
-  // 设置 SSE 响应头
-  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-
-  // 提前发送响应头
-  res.flushHeaders();
-
-  // 如果客户端断开连接，则取消模型请求。
-  req.on("end", () => {
-    // 这会让下面的 for await 循环抛出 Error: Aborted 异常。
-    abortController.abort();
+  return new Promise<string>((resolve) => {
+    rl.question("User: ", (answer) => {
+      resolve(answer);
+      rl.close();
+    });
   });
+};
+
+const model = new ChatOpenAI({
+  model: MODEL,
+  temperature: 0.1,
+  configuration: {
+    baseURL: BASE_URL,
+    apiKey: API_KEY,
+  },
+  streaming: true,
+});
+
+while (true) {
+  // 读取用户输入
+  const input = await readInput();
+  messages.push(new HumanMessage(input));
+
+  // 调用模型API 传入历史所有消息
+  const chunks = await model.stream(messages);
 
   let reply = "";
 
-  // 接收模型流式响应
-  try {
-    for await (const chunk of stream) {
-      const content = chunk.content.toString();
+  process.stdout.write("Assistant: ");
 
-      // 封装成前端需要的消息格式
-      const message = {
-        type: "assistant",
-        partial: true,
-        payload: { content },
-      };
-
-      //发送消息给前端
-      res.write(`data: ${JSON.stringify(message)}\n\n`);
-
-      reply += content;
-    }
-  } catch (error) {
-    // 可以在这里处理前端的主动中断动作
-    console.error(error);
+  // 使用 for await 处理流式数据
+  for await (const chunk of chunks) {
+    const content = chunk.content.toString();
+    // 打印模型回复
+    process.stdout.write(content); // 实时输出，不换行
+    reply += content;
   }
-
-  // 保存本次模型回复，即便中途断开导致不完整。
+  process.stdout.write("\n\n");
   messages.push(new AIMessage(reply));
-
-  // 最后发送一个 close 事件，触发前端 EventSource 的自定义 close 事件，
-  // 该事件必须通过 EventSource.addEventListener('close') 添加。
-  // 这里必须带一个 data: 否则前端的自定义 close 事件不会触发，原因是：
-  // 前端的自定义事件会在 message 事件触发后再触发。
-  res.end("event: close\ndata:\n\n");
-};
-/**
- * SSE 通信接口（EventSource GET 版本）
- */
-app.get("/sse", sseHandler);
-
-/**
- * SSE 通信接口（fetch POST 版本）
- */
-app.post("/sse", sseHandler);
-
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
+}
