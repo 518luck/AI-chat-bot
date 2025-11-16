@@ -43,9 +43,13 @@ function App() {
   });
 
   return (
-    <div className="flex min-h-screen flex-col dark:bg-[#303030]">
+    <div className="flex flex-col dark:bg-[#212121]">
       {/* 顶部状态栏 */}
-      <section>
+      <section
+        className={cs("sticky top-0", {
+          "outline outline-[#f2f2f2] dark:outline-[#2c2c2c]": !isMessageEmpty,
+        })}
+      >
         <div className="flex items-center justify-between p-2">
           {/* 模型切换 */}
           <section>
@@ -82,23 +86,55 @@ function App() {
         </div>
       </section>
 
-      <main className="mt-30 flex flex-1 flex-col items-center justify-start">
-        {/* 标题 */}
-        <section>
-          <h1 className="relative mx-auto p-4 text-3xl font-medium">
-            你在忙什么?
-          </h1>
+      <main
+        className={cs("flex w-full justify-center", {
+          "mt-40": isMessageEmpty,
+          "h-[calc(100vh-64px-96px)] overflow-y-auto": !isMessageEmpty,
+        })}
+      >
+        <section className="max-w-3xl">
+          {/* 标题 */}
+          {isMessageEmpty && (
+            <section>
+              <h1 className="mx-auto p-4 text-3xl font-medium">你在忙什么?</h1>
+            </section>
+          )}
+
+          {/* 聊天消息 */}
+          {!isMessageEmpty && (
+            <section>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((item) => (
+                <>
+                  <div>
+                    outline outline-1
+                    outline-amber-100为什么这个线只会出现在下边框
+                  </div>
+                  <div>
+                    重点：outline
+                    不是边框，它不会只画“下边框”。它默认是画在元素四周一圈的。
+                    你看到它只在下边，是因为你的元素本身布局导致其它三边被“挡住”或“不可见”。
+                  </div>
+                </>
+              ))}
+            </section>
+          )}
         </section>
-        {/* 聊天消息 */}
-        <section className="sticky top-0 left-0">
-          <div>您好</div>
-          <div>很高兴见到你</div>
-        </section>
-        {/* 测试  ProseMirror */}
+      </main>
+
+      <footer
+        className={cs("bottom-8 z-10 flex w-full justify-center", {
+          sticky: !isExpanded,
+        })}
+      >
         {/* 底部输入框 */}
-        <section className="flex w-full max-w-171 rounded-[28px] border p-2 shadow-sm dark:bg-[#303030]">
+        <section className="flex w-full max-w-3xl rounded-[28px] border p-2 shadow-sm dark:bg-[#303030]">
           <div
-            className={`justify-between" flex max-h-56 min-h-[38px] w-full items-center ${isExpanded ? "flex-col" : ""}`}
+            className={cs(
+              "flex max-h-56 min-h-[38px] w-full items-center justify-between",
+              {
+                "flex-col": isExpanded,
+              },
+            )}
           >
             <EditorContent
               editor={editor}
@@ -114,7 +150,7 @@ function App() {
             </div>
           </div>
         </section>
-      </main>
+      </footer>
     </div>
   );
 }
