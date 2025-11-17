@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { ChevronDown, Sun, MoonStar } from "lucide-react";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -6,7 +6,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { PasteFilter } from "@/utils/PasteFilter";
 import cs from "classnames";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
-import { useMount } from "ahooks";
+import { useMount, useKeyPress } from "ahooks";
 
 import "./global.css";
 import EditInput from "@/components/EditInput";
@@ -21,6 +21,9 @@ function App() {
   // 回复内容
   const [reply, setReply] = useState<ChatMessage[]>([]);
 
+  // 消息容器
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
@@ -29,8 +32,13 @@ function App() {
     const response = await fetch("http://localhost:3000/history");
     const historyMessages = await response.json().catch(() => []);
     setReply(historyMessages);
-    // 滚动到底部
   });
+
+  useEffect(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [reply]);
 
   const editor = useEditor({
     extensions: [
@@ -55,12 +63,18 @@ function App() {
   });
 
   const ctrl = new AbortController();
-
-  const handleSubmit = (text: string) => {
+  const handleSubmit = () => {
+    //输入框的文本内容
+    const text = editor.getText().trim();
+    if (!text) return; // 避免空字符串
+    // 清空输入框
+    editor.commands.setContent("");
     //用户发送的信息
     if (!editor) return;
-    editor.commands.setContent("");
-    setReply((prev) => [...prev, { type: "user", payload: { content: text } }]);
+    setReply((prev) => {
+      return [...prev, { type: "user", payload: { content: text } }];
+    });
+
     // sse返回的数据
     fetchEventSource("http://localhost:3000/sse", {
       method: "POST",
@@ -104,6 +118,9 @@ function App() {
       },
     });
   };
+
+  // 键盘监听
+  useKeyPress("Enter", handleSubmit, { target: editor.view.dom });
 
   return (
     <div className="flex flex-col dark:bg-[#212121]">
@@ -150,6 +167,7 @@ function App() {
       </section>
 
       <main
+        ref={messagesContainerRef}
         className={cs("flex w-full justify-center py-2", {
           "mt-40": !reply.length,
           "h-[calc(100vh-64px-96px)] overflow-y-auto": reply.length,
