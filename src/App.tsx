@@ -55,7 +55,13 @@ function App() {
   });
 
   const ctrl = new AbortController();
+
   const handleSubmit = (text: string) => {
+    //用户发送的信息
+    if (!editor) return;
+    editor.commands.setContent("");
+    setReply((prev) => [...prev, { type: "user", payload: { content: text } }]);
+    // sse返回的数据
     fetchEventSource("http://localhost:3000/sse", {
       method: "POST",
       body: JSON.stringify({
@@ -65,20 +71,35 @@ function App() {
         "Content-Type": "application/json",
       },
       signal: ctrl.signal,
-      onopen: async (res) => {
-        console.log("连接成功:", res);
-      },
+
       onmessage(ev) {
-        console.log("收到数据:", ev.data);
-        const data = JSON.parse(ev.data);
-        const content = data.payload?.content || "";
-        setReply((prev) => prev + content);
+        if (ev.event === "close" || !ev.data) return;
+        let data;
+        try {
+          data = JSON.parse(ev.data);
+        } catch {
+          return;
+        }
+
+        const content = data?.payload?.content ?? "";
+        const isPartial = !!data?.partial;
+        const type = data?.type ?? "assistant";
+
+        setReply((prev) => {
+          const last = prev[prev.length - 1];
+          if (last && last.type === "assistant" && isPartial) {
+            const merged = {
+              ...last,
+              payload: { content: (last.payload?.content ?? "") + content },
+              partial: isPartial,
+            };
+            return [...prev.slice(0, -1), merged];
+          }
+          return [...prev, { type, payload: { content }, partial: isPartial }];
+        });
       },
-      onclose() {
-        console.log("连接关闭");
-      },
+
       onerror(err) {
-        console.error("出错了:", err);
         throw err;
       },
     });

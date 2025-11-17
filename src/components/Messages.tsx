@@ -6,19 +6,20 @@ const Message = ({ reply }: { reply: ChatMessage[] }) => {
     <section>
       {reply.length !== 0 && (
         <section>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((item) => (
+          {reply.map((item, index) => (
             <div
+              key={index}
               className={cs("flex", {
-                "justify-end": item % 2 !== 0,
+                "justify-end": item.type === "user",
               })}
             >
               <div
                 className={cs(
                   "mb-9 inline-flex min-h-9 w-fit flex-col rounded-2xl p-4",
-                  { "max-w-[448px] bg-[#303030]": item % 2 !== 0 },
+                  { "max-w-[448px] bg-[#303030]": item.type === "user" },
                 )}
               >
-                {/* {reply.trim()} */}
+                {item.payload.content}
               </div>
             </div>
           ))}
