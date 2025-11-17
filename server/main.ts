@@ -9,6 +9,8 @@ import {
 } from "@langchain/core/messages";
 import cors from "cors";
 
+import type { ChatMessage } from "../src/types/chatMessage-type";
+
 const API_KEY = process.env.API_KEY;
 const BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1";
 const MODEL = "qwen-turbo";
@@ -70,6 +72,26 @@ app.use(
 );
 
 //历史消息(暂时不写)
+app.get("/history", (req, res) => {
+  const historyMessages: ChatMessage[] = messages
+    .map((message) => {
+      if (message instanceof HumanMessage) {
+        return {
+          type: "user" as const,
+          payload: { content: message.content.toString() },
+        };
+      } else if (message instanceof AIMessage) {
+        return {
+          type: "assistant" as const,
+          payload: { content: message.content.toString() },
+        };
+      }
+      return null;
+    })
+    .filter((message) => message !== null);
+
+  res.json(historyMessages);
+});
 
 const sseHandler = async (req: Request, res: Response) => {
   let query = "";

@@ -6,9 +6,12 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { PasteFilter } from "@/utils/PasteFilter";
 import cs from "classnames";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
+import { useMount } from "ahooks";
 
 import "./global.css";
 import EditInput from "@/components/EditInput";
+import type { ChatMessage } from "@/types/chatMessage-type";
+import Messages from "@/components/Messages";
 
 function App() {
   // 输入框是否展开
@@ -16,11 +19,18 @@ function App() {
   // 当前主题
   const [theme, setTheme] = useState("light");
   // 回复内容
-  const [reply, setReply] = useState("");
+  const [reply, setReply] = useState<ChatMessage[]>([]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
+
+  useMount(async () => {
+    const response = await fetch("http://localhost:3000/history");
+    const historyMessages = await response.json().catch(() => []);
+    setReply(historyMessages);
+    // 滚动到底部
+  });
 
   const editor = useEditor({
     extensions: [
@@ -79,7 +89,7 @@ function App() {
       {/* 顶部状态栏 */}
       <section
         className={cs("sticky top-0", {
-          "outline outline-[#f2f2f2] dark:outline-[#2c2c2c]": !reply.trim(),
+          "outline outline-[#f2f2f2] dark:outline-[#2c2c2c]": !reply.length,
         })}
       >
         <div className="flex items-center justify-between p-2">
@@ -120,39 +130,20 @@ function App() {
 
       <main
         className={cs("flex w-full justify-center py-2", {
-          "mt-40": !reply.trim(),
-          "h-[calc(100vh-64px-96px)] overflow-y-auto": reply.trim(),
+          "mt-40": !reply.length,
+          "h-[calc(100vh-64px-96px)] overflow-y-auto": reply.length,
         })}
       >
         <section className="max-w-[750px]">
           {/* 标题 */}
-          {!reply.trim() && (
+          {!reply.length && (
             <section>
               <h1 className="mx-auto p-4 text-3xl font-medium">你在忙什么?</h1>
             </section>
           )}
 
           {/* 聊天消息 */}
-          {reply.trim() && (
-            <section>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((item) => (
-                <div
-                  className={cs("flex", {
-                    "justify-end": item % 2 !== 0,
-                  })}
-                >
-                  <div
-                    className={cs(
-                      "mb-9 inline-flex min-h-9 w-fit flex-col rounded-2xl p-4",
-                      { "max-w-[448px] bg-[#303030]": item % 2 !== 0 },
-                    )}
-                  >
-                    {reply.trim()}
-                  </div>
-                </div>
-              ))}
-            </section>
-          )}
+          <Messages reply={reply} />
         </section>
       </main>
 
