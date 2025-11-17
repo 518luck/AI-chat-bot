@@ -5,18 +5,18 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { PasteFilter } from "@/utils/PasteFilter";
 import cs from "classnames";
-
-import EditInput from "@/components/EditInput";
+import { fetchEventSource } from "@microsoft/fetch-event-source";
 
 import "./global.css";
+import EditInput from "@/components/EditInput";
 
 function App() {
   // 输入框是否展开
   const [isExpanded, setIsExpanded] = useState(false);
-  // 输入框是否为空
-  const [isMessageEmpty, setIsMessageEmpty] = useState(true);
   // 当前主题
   const [theme, setTheme] = useState("light");
+  // 回复内容
+  const [reply, setReply] = useState("");
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -44,8 +44,9 @@ function App() {
     },
   });
 
-  const handleSubmit = async (text: string) => {
-    const res = await fetch("http://localhost:3000/sse", {
+  const ctrl = new AbortController();
+  const handleSubmit = (text: string) => {
+    fetchEventSource("http://localhost:3000/sse", {
       method: "POST",
       body: JSON.stringify({
         query: text,
@@ -53,29 +54,24 @@ function App() {
       headers: {
         "Content-Type": "application/json",
       },
+      signal: ctrl.signal,
+      onopen: async (res) => {
+        console.log("连接成功:", res);
+      },
+      onmessage(ev) {
+        console.log("收到数据:", ev.data);
+        const data = JSON.parse(ev.data);
+        const content = data.payload?.content || "";
+        setReply((prev) => prev + content);
+      },
+      onclose() {
+        console.log("连接关闭");
+      },
+      onerror(err) {
+        console.error("出错了:", err);
+        throw err;
+      },
     });
-
-    const reader = res.body?.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-      //value是后端返回值(是二进制), done代表这个流有没有读完
-      const { value, done } = (await reader?.read()) || {};
-      if (done) break;
-
-      const text = decoder.decode(value);
-      const lines = text.split("\n\n");
-
-      for (const line of lines) {
-        if (line.startsWith("data:")) {
-          const json = JSON.parse(line.slice(5));
-          // console.log("分片内容:", json.payload.content);
-        }
-        if (line.startsWith("event: close")) {
-          // console.log("SSE 已结束");
-        }
-      }
-    }
   };
 
   return (
@@ -83,7 +79,7 @@ function App() {
       {/* 顶部状态栏 */}
       <section
         className={cs("sticky top-0", {
-          "outline outline-[#f2f2f2] dark:outline-[#2c2c2c]": !isMessageEmpty,
+          "outline outline-[#f2f2f2] dark:outline-[#2c2c2c]": !reply.trim(),
         })}
       >
         <div className="flex items-center justify-between p-2">
@@ -124,20 +120,20 @@ function App() {
 
       <main
         className={cs("flex w-full justify-center py-2", {
-          "mt-40": isMessageEmpty,
-          "h-[calc(100vh-64px-96px)] overflow-y-auto": !isMessageEmpty,
+          "mt-40": !reply.trim(),
+          "h-[calc(100vh-64px-96px)] overflow-y-auto": reply.trim(),
         })}
       >
         <section className="max-w-[750px]">
           {/* 标题 */}
-          {isMessageEmpty && (
+          {!reply.trim() && (
             <section>
               <h1 className="mx-auto p-4 text-3xl font-medium">你在忙什么?</h1>
             </section>
           )}
 
           {/* 聊天消息 */}
-          {!isMessageEmpty && (
+          {reply.trim() && (
             <section>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((item) => (
                 <div
@@ -151,11 +147,7 @@ function App() {
                       { "max-w-[448px] bg-[#303030]": item % 2 !== 0 },
                     )}
                   >
-                    outline outline-1
-                    outline-amber-100为什么这个线只会出现在下边框 outline
-                    outline-1 outline-amber-100为什么这个线只会出现在下边框
-                    outline outline-1
-                    outline-amber-100为什么这个线只会出现在下边框
+                    {reply.trim()}
                   </div>
                 </div>
               ))}
