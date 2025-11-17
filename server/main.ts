@@ -73,7 +73,6 @@ app.use(
 
 const sseHandler = async (req: Request, res: Response) => {
   let query = "";
-  console.log("🚀 ~ sseHandler ~ req:", req.body);
   if (req.method === "GET") {
     query = req.query.query as unknown as string;
   }
@@ -128,6 +127,7 @@ const sseHandler = async (req: Request, res: Response) => {
     // 可以在这里处理前端的主动中断动作
     console.error(error);
   }
+  console.log("🚀 ~ messages:", messages);
 
   // 保存本次模型回复，即便中途断开导致不完整。
   messages.push(new AIMessage(reply));
