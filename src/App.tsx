@@ -12,17 +12,36 @@ import "./global.css";
 import EditInput from "@/components/EditInput";
 import type { ChatMessage } from "@/types/chatMessage-type";
 import Messages from "@/components/Messages";
+import useThemeStore, { type Theme } from "@/stores/theme.stores";
 
 function App() {
   // 输入框是否展开
   const [isExpanded, setIsExpanded] = useState(false);
   // 当前主题
-  const [theme, setTheme] = useState("light");
+  // const [theme, setTheme] = useState("light");
   // 回复内容
   const [reply, setReply] = useState<ChatMessage[]>([]);
 
+  // 从zustand中获取主题
+  const { theme, setTheme } = useThemeStore((state) => state);
+
   // 消息容器
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("theme"); // 读取本地存储
+    if (saved) {
+      const localStorageTheme = JSON.parse(saved).state.theme;
+      if (localStorageTheme === "light" || localStorageTheme === "dark") {
+        setTheme(localStorageTheme as Theme); // 写入 store
+      }
+    } else {
+      const systemDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      setTheme(systemDark ? "dark" : "light"); // 使用系统主题
+    }
+  }, [setTheme]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
