@@ -157,7 +157,7 @@ function App() {
       <main
         ref={messagesContainerRef}
         className={cs(
-          "scrollbar-thin dark:scrollbar-track-[#212121] dark:scrollbar-thumb-[#383838] scrollbar-thumb-[#ffffff] flex w-full justify-center py-2",
+          "scrollbar-thin dark:scrollbar-track-[#212121] dark:scrollbar-thumb-[#383838] scrollbar-track-[#ffffff] scrollbar-thumb-[#cccccc] flex w-full justify-center py-2",
           {
             "mt-40": !reply.length,
             "h-[calc(100vh-64px-96px)] overflow-y-auto": reply.length,

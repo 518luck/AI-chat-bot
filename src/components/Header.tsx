@@ -24,7 +24,7 @@ const Header = () => {
                 "absolute h-6 w-8 rounded-full transition-transform duration-300 ease-in-out",
                 {
                   "-translate-x-1 bg-gray-200": theme === "light",
-                  "translate-x-10 bg-[#181818]": theme === "dark",
+                  "translate-x-10 bg-[#303030]": theme === "dark",
                 },
               )}
             />

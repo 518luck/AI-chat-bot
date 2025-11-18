@@ -16,7 +16,10 @@ const Message = ({ reply }: { reply: ChatMessage[] }) => {
               <div
                 className={cs(
                   "mb-9 inline-flex min-h-9 w-fit flex-col rounded-2xl p-4",
-                  { "max-w-[448px] bg-[#303030]": item.type === "user" },
+                  {
+                    "max-w-[448px] bg-[#f4f4f4] dark:bg-[#303030]":
+                      item.type === "user",
+                  },
                 )}
               >
                 {item.payload.content}
