@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState } from "react";
-import { ChevronDown, Sun, MoonStar } from "lucide-react";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -13,6 +12,7 @@ import EditInput from "@/components/EditInput";
 import type { ChatMessage } from "@/types/chatMessage-type";
 import Messages from "@/components/Messages";
 import useThemeStore, { type Theme } from "@/stores/theme.stores";
+import Header from "@/components/Header";
 
 function App() {
   // 输入框是否展开
@@ -28,6 +28,7 @@ function App() {
   // 消息容器
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
+  //监听本地存储,判断是否有主题,没有就用系统主题偏好
   useEffect(() => {
     const saved = localStorage.getItem("theme"); // 读取本地存储
     if (saved) {
@@ -43,6 +44,7 @@ function App() {
     }
   }, [setTheme]);
 
+  // 监听主题变化,改变主题
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
@@ -149,48 +151,18 @@ function App() {
           "outline outline-[#f2f2f2] dark:outline-[#2c2c2c]": !reply.length,
         })}
       >
-        <div className="flex items-center justify-between p-2">
-          {/* 模型切换 */}
-          <section>
-            <div className="flex cursor-pointer items-center rounded-md p-1 text-lg select-none hover:bg-gray-200 dark:hover:bg-[#303030]">
-              ChatGPT
-              <ChevronDown />
-            </div>
-          </section>
-
-          {/* 主题切换 */}
-          <section>
-            <div className="border-border relative flex w-24 items-center justify-between rounded-full border-2 border-solid p-1 px-3">
-              <div
-                className={cs(
-                  "absolute h-6 w-8 rounded-full transition-transform duration-300 ease-in-out",
-                  {
-                    "-translate-x-1 bg-gray-200": theme === "light",
-                    "translate-x-10 bg-[#181818]": theme === "dark",
-                  },
-                )}
-              />
-              <Sun
-                size={20}
-                className="cursor-pointer"
-                onClick={() => setTheme("light")}
-              />
-              <MoonStar
-                size={20}
-                className="cursor-pointer"
-                onClick={() => setTheme("dark")}
-              />
-            </div>
-          </section>
-        </div>
+        <Header />
       </section>
 
       <main
         ref={messagesContainerRef}
-        className={cs("flex w-full justify-center py-2", {
-          "mt-40": !reply.length,
-          "h-[calc(100vh-64px-96px)] overflow-y-auto": reply.length,
-        })}
+        className={cs(
+          "scrollbar-thin dark:scrollbar-track-[#212121] dark:scrollbar-thumb-[#383838] scrollbar-thumb-[#ffffff] flex w-full justify-center py-2",
+          {
+            "mt-40": !reply.length,
+            "h-[calc(100vh-64px-96px)] overflow-y-auto": reply.length,
+          },
+        )}
       >
         <section className="max-w-[750px]">
           {/* 标题 */}

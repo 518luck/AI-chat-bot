@@ -1,6 +1,11 @@
 @import "modern-normalize/modern-normalize.css";
 @import "tailwindcss";
 
+@plugin 'tailwind-scrollbar' {
+  nocompatible: true;
+}
+
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
