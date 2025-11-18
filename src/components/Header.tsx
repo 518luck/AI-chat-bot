@@ -31,7 +31,7 @@ const Header = () => {
             </button>
           </DialogTrigger>
 
-          <DialogContent>
+          <DialogContent className="[&>button.absolute]:hidden">
             <DialogHeader>
               <DialogTitle>设置</DialogTitle>
             </DialogHeader>
@@ -60,7 +60,6 @@ const Header = () => {
                 />
               </div>
             </div>
-
             <DialogFooter>
               <DialogClose>
                 <div className="cursor-pointer rounded-md p-1 text-lg select-none hover:bg-gray-200 dark:hover:bg-[#303030]">
