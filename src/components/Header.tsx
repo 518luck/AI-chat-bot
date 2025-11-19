@@ -12,11 +12,13 @@ import {
 } from "@/components/ui/dialog";
 import useThemeStore from "@/stores/theme.stores";
 import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { BASE_URL } from "@/config";
 
-const Header = () => {
+type HeaderProps = {
+  onDeleted: () => void;
+};
+const Header = ({ onDeleted }: HeaderProps) => {
   const { theme, setTheme } = useThemeStore((state) => state);
 
   const handleDeleteMessage = async () => {
@@ -89,6 +91,7 @@ const Header = () => {
                     {
                       loading: "Loading...",
                       success: (data) => {
+                        onDeleted();
                         return data.data;
                       },
                       error: "Error",
@@ -96,7 +99,6 @@ const Header = () => {
                   );
                 }}
               >
-                <Spinner className="size-5 dark:text-yellow-500" />
                 清空对话
               </Button>
             </div>

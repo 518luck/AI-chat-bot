@@ -154,7 +154,7 @@ function App() {
           "outline outline-[#f2f2f2] dark:outline-[#2c2c2c]": !reply.length,
         })}
       >
-        <Header />
+        <Header onDeleted={() => setReply([])} />
       </section>
 
       <main
