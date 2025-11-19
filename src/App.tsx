@@ -182,12 +182,9 @@ function App() {
 
       {/* 底部输入框 */}
       <footer
-        className={cs(
-          "bottom-8 z-10 flex w-full justify-center transition-transform duration-300 ease-out",
-          {
-            sticky: !isExpanded,
-          },
-        )}
+        className={cs("flex w-full justify-center", {
+          "sticky bottom-8 z-10": !isExpanded,
+        })}
       >
         <EditInput
           isExpanded={isExpanded}

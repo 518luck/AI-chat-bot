@@ -9,18 +9,33 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import useThemeStore from "@/stores/theme.stores";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { BASE_URL } from "@/config";
+import { useState } from "react";
 
 type HeaderProps = {
   onDeleted: () => void;
 };
 const Header = ({ onDeleted }: HeaderProps) => {
   const { theme, setTheme } = useThemeStore((state) => state);
+  const [apiKey, setApiKey] = useState("");
 
+  //提交apiKey
+  const handleSubmitApiKey = async () => {
+    return await fetch(BASE_URL + "api-key", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ apiKey }),
+    });
+  };
+
+  //删除所有对话
   const handleDeleteMessage = async () => {
     return await fetch(BASE_URL + "delete-message", {
       method: "POST",
@@ -50,6 +65,9 @@ const Header = ({ onDeleted }: HeaderProps) => {
           >
             <DialogHeader>
               <DialogTitle>设置</DialogTitle>
+              <DialogDescription>
+                这里可以调整主题或者清空对话历史
+              </DialogDescription>
             </DialogHeader>
             {/* 切换主题 */}
             <div className="py-2">
@@ -102,14 +120,32 @@ const Header = ({ onDeleted }: HeaderProps) => {
                 清空对话
               </Button>
             </div>
+
             {/* 录入key */}
             <div className="py-2">
               <p className="mb-2">Qwen API Key</p>
               <div>
                 <Input
+                  onChange={(e) => setApiKey(e.target.value)}
                   type="text"
                   placeholder="请输入Qwen API Key"
                   className="w-[300px]"
+                  onBlur={() => {
+                    toast.promise<{ success: boolean; data: string }>(
+                      () =>
+                        handleSubmitApiKey().then((res) => {
+                          return res.json();
+                        }),
+                      {
+                        loading: "Loading...",
+                        success: (data) => {
+                          onDeleted();
+                          return data.data;
+                        },
+                        error: "Error",
+                      },
+                    );
+                  }}
                 />
               </div>
             </div>

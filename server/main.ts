@@ -11,25 +11,23 @@ import cors from "cors";
 
 import type { ChatMessage } from "../src/types/chatMessage-type";
 
-const API_KEY = process.env.API_KEY;
+let API_KEY = process.env.API_KEY || "";
 const BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1";
 const MODEL = "qwen-turbo";
 
-if (!API_KEY) {
-  throw new Error("请在 .env 中设置 API_KEY");
-}
-
 // 创建模型实例
-const model = new ChatOpenAI({
-  model: MODEL,
-  temperature: 0.1,
-  configuration: {
-    baseURL: BASE_URL,
-    apiKey: API_KEY,
-  },
-  streaming: true,
-});
-
+function doCreateModel() {
+  return new ChatOpenAI({
+    model: MODEL,
+    temperature: 0.1,
+    configuration: {
+      baseURL: BASE_URL,
+      apiKey: API_KEY,
+    },
+    streaming: true,
+  });
+}
+let model = doCreateModel();
 // 提示词
 const messages: BaseMessage[] = [
   new SystemMessage(`
@@ -93,12 +91,25 @@ app.get("/history", (req, res) => {
   res.json(historyMessages);
 });
 
+//删除历史消息
 app.post("/delete-message", (req, res) => {
   if (messages?.length > 0) {
     messages.splice(0, messages.length);
     res.json({ success: true, data: "删除消息成功" });
   } else {
     res.json({ success: true, data: "没有消息可删除" });
+  }
+});
+
+// 存储 API Key
+app.post("/api-key", (req, res) => {
+  const apiKey = req.body.apiKey;
+  if (apiKey) {
+    API_KEY = apiKey;
+    model = doCreateModel();
+    res.json({ success: true, data: "API Key 存储成功" });
+  } else {
+    res.json({ success: false, data: "API Key 不能为空" });
   }
 });
 
