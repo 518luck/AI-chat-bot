@@ -13,6 +13,7 @@ import type { ChatMessage } from "@/types/chatMessage-type";
 import Messages from "@/components/Messages";
 import useThemeStore, { type Theme } from "@/stores/theme.stores";
 import Header from "@/components/Header";
+import { Toaster } from "@/components/ui/sonner";
 
 function App() {
   // 输入框是否展开
@@ -144,7 +145,8 @@ function App() {
   useKeyPress("Enter", handleSubmit, { target: editor.view.dom });
 
   return (
-    <div className="flex flex-col dark:bg-[#212121]">
+    <div className="flex h-screen flex-col dark:bg-[#212121]">
+      <Toaster className="pointer-events-auto" />
       {/* 顶部状态栏 */}
       <section
         className={cs("sticky top-0", {

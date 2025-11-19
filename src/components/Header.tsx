@@ -1,4 +1,5 @@
 import { ChevronDown, Settings2, Sun, MoonStar } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import cs from "classnames";
 import {
   Dialog,
@@ -10,6 +11,9 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import useThemeStore from "@/stores/theme.stores";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { toast } from "sonner";
 
 const Header = () => {
   const { theme, setTheme } = useThemeStore((state) => state);
@@ -31,11 +35,14 @@ const Header = () => {
             </button>
           </DialogTrigger>
 
-          <DialogContent className="[&>button.absolute]:hidden">
+          <DialogContent
+            showCloseButton={false}
+            className="bg-[#ffffff] dark:bg-[#212121]"
+          >
             <DialogHeader>
               <DialogTitle>设置</DialogTitle>
             </DialogHeader>
-
+            {/* 切换主题 */}
             <div className="py-2">
               <p>切换主题</p>
               <div className="border-border relative mt-2 flex w-24 items-center justify-between rounded-full border-2 border-solid p-1 px-3">
@@ -57,6 +64,41 @@ const Header = () => {
                   size={20}
                   className="cursor-pointer"
                   onClick={() => setTheme("dark")}
+                />
+              </div>
+            </div>
+
+            {/* 清空对话 */}
+            <div className="py-2">
+              <Button
+                variant="destructive"
+                className="flex items-center"
+                onClick={() => {
+                  toast.promise<{ name: string }>(
+                    () =>
+                      new Promise((resolve) =>
+                        setTimeout(() => resolve({ name: "Event" }), 2000),
+                      ),
+                    {
+                      loading: "Loading...",
+                      success: (data) => `${data.name} has been created`,
+                      error: "Error",
+                    },
+                  );
+                }}
+              >
+                <Spinner className="size-5 dark:text-yellow-500" />
+                清空对话
+              </Button>
+            </div>
+            {/* 录入key */}
+            <div className="py-2">
+              <p className="mb-2">Qwen API Key</p>
+              <div>
+                <Input
+                  type="text"
+                  placeholder="请输入Qwen API Key"
+                  className="w-[300px]"
                 />
               </div>
             </div>
