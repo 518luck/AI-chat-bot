@@ -9,7 +9,7 @@ const Message = ({ reply }: { reply: ChatMessage[] }) => {
           {reply.map((item, index) => (
             <div
               key={index}
-              className={cs("flex", {
+              className={cs("flex w-[750px]", {
                 "justify-end": item.type === "user",
               })}
             >
