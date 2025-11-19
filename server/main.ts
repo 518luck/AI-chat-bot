@@ -93,6 +93,15 @@ app.get("/history", (req, res) => {
   res.json(historyMessages);
 });
 
+app.post("/delete-message", (req, res) => {
+  if (messages?.length > 0) {
+    messages.splice(0, messages.length);
+    res.json({ success: true, data: "删除消息成功" });
+  } else {
+    res.json({ success: true, data: "没有消息可删除" });
+  }
+});
+
 const sseHandler = async (req: Request, res: Response) => {
   let query = "";
   if (req.method === "GET") {

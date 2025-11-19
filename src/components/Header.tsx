@@ -14,9 +14,16 @@ import useThemeStore from "@/stores/theme.stores";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
+import { BASE_URL } from "@/config";
 
 const Header = () => {
   const { theme, setTheme } = useThemeStore((state) => state);
+
+  const handleDeleteMessage = async () => {
+    return await fetch(BASE_URL + "delete-message", {
+      method: "POST",
+    });
+  };
 
   return (
     <header>
@@ -74,14 +81,16 @@ const Header = () => {
                 variant="destructive"
                 className="flex items-center"
                 onClick={() => {
-                  toast.promise<{ name: string }>(
+                  toast.promise<{ success: boolean; data: string }>(
                     () =>
-                      new Promise((resolve) =>
-                        setTimeout(() => resolve({ name: "Event" }), 2000),
-                      ),
+                      handleDeleteMessage().then((res) => {
+                        return res.json();
+                      }),
                     {
                       loading: "Loading...",
-                      success: (data) => `${data.name} has been created`,
+                      success: (data) => {
+                        return data.data;
+                      },
                       error: "Error",
                     },
                   );

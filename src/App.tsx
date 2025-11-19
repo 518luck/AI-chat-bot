@@ -14,6 +14,7 @@ import Messages from "@/components/Messages";
 import useThemeStore, { type Theme } from "@/stores/theme.stores";
 import Header from "@/components/Header";
 import { Toaster } from "@/components/ui/sonner";
+import { BASE_URL } from "@/config";
 
 function App() {
   // 输入框是否展开
@@ -51,7 +52,7 @@ function App() {
   }, [theme]);
 
   useMount(async () => {
-    const response = await fetch("http://localhost:3000/history");
+    const response = await fetch(BASE_URL + "history");
     const historyMessages = await response.json().catch(() => []);
     setReply(historyMessages);
   });
@@ -98,7 +99,7 @@ function App() {
     });
 
     // sse返回的数据
-    fetchEventSource("http://localhost:3000/sse", {
+    fetchEventSource(BASE_URL + "sse", {
       method: "POST",
       body: JSON.stringify({
         query: text,
