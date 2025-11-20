@@ -129,7 +129,7 @@ function App() {
         // 错误信息
         if (type === "error") {
           toast.error(content);
-          setToastConfig({ position: "top-right" });
+          setToastConfig({ position: "top-center", richColors: true });
           return;
         }
 

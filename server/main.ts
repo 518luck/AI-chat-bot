@@ -114,13 +114,16 @@ app.post("/api-key", (req, res) => {
 });
 
 const sseHandler = async (req: Request, res: Response) => {
+  // 设置 SSE 响应头
+  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  // 提前发送响应头
+  res.flushHeaders();
+
   //判断是否有key
   if (!API_KEY) {
-    res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-    res.flushHeaders();
-
     const msg = {
       type: "error",
       payload: { content: "API Key 不能为空" },
@@ -148,17 +151,27 @@ const sseHandler = async (req: Request, res: Response) => {
 
   // 调用模型 API 传入历史所有消息
 
-  const stream = await model.stream(messages, {
-    signal: abortController.signal,
-  });
+  let stream;
 
-  // 设置 SSE 响应头
-  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
+  try {
+    stream = await model.stream(messages, {
+      signal: abortController.signal,
+    });
+  } catch (error) {
+    const msg = {
+      type: "error",
+      //eslint-disable-next-line @typescript-eslint/no-explicit-any
+      payload: { content: (error as any)?.error?.message || "" },
+    };
+    // SSE 错误信息
+    res.write(`data: ${JSON.stringify(msg)}\n\n`);
 
-  // 提前发送响应头
-  res.flushHeaders();
+    // 发送 close 事件
+    return res.end("event: close\ndata:\n\n");
+    // console.log("🚀 ~ sseHandler ~ error:", error.headers.error.message);
+  }
+
+  if (!stream) return;
 
   // 如果客户端断开连接，则取消模型请求。
   req.on("end", () => {

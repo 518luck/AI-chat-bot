@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type ToastPosition = "top-right" | "top-left" | "bottom-right" | "bottom-left";
+type ToastPosition = "top-left" | "top-center" | "bottom-right";
 export interface ToastConfigData {
   position: ToastPosition;
   richColors: boolean;
@@ -14,7 +14,7 @@ interface ToastConfigStore {
 export const useToastConfigStore = create<ToastConfigStore>((set) => ({
   config: {
     position: "bottom-right",
-    richColors: true,
+    richColors: false,
   },
   setToastConfig: (config: Partial<ToastConfigData>) =>
     set((state) => ({ config: { ...state.config, ...config } })),
