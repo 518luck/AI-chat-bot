@@ -6,6 +6,7 @@ import { PasteFilter } from "@/utils/PasteFilter";
 import cs from "classnames";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { useMount, useKeyPress } from "ahooks";
+import { toast } from "sonner";
 
 import "./global.css";
 import EditInput from "@/components/EditInput";
@@ -15,8 +16,11 @@ import useThemeStore, { type Theme } from "@/stores/theme.stores";
 import Header from "@/components/Header";
 import { Toaster } from "@/components/ui/sonner";
 import { BASE_URL } from "@/config";
+import { useToastConfigStore } from "@/stores/toast.config.stores";
 
 function App() {
+  const toastConfig = useToastConfigStore((state) => state.config);
+  const setToastConfig = useToastConfigStore((state) => state.setToastConfig);
   // 输入框是否展开
   const [isExpanded, setIsExpanded] = useState(false);
   // 当前主题
@@ -122,6 +126,13 @@ function App() {
         const isPartial = !!data?.partial;
         const type = data?.type ?? "assistant";
 
+        // 错误信息
+        if (type === "error") {
+          toast.error(content);
+          setToastConfig({ position: "top-right" });
+          return;
+        }
+
         setReply((prev) => {
           const last = prev[prev.length - 1];
           if (last && last.type === "assistant" && isPartial) {
@@ -147,7 +158,7 @@ function App() {
 
   return (
     <div className="flex h-screen flex-col dark:bg-[#212121]">
-      <Toaster className="pointer-events-auto" />
+      <Toaster {...toastConfig} className="pointer-events-auto" />
       {/* 顶部状态栏 */}
       <section
         className={cs("sticky top-0", {

@@ -114,6 +114,25 @@ app.post("/api-key", (req, res) => {
 });
 
 const sseHandler = async (req: Request, res: Response) => {
+  //判断是否有key
+  if (!API_KEY) {
+    res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    const msg = {
+      type: "error",
+      payload: { content: "API Key 不能为空" },
+    };
+
+    // SSE 错误信息
+    res.write(`data: ${JSON.stringify(msg)}\n\n`);
+
+    // 发送 close 事件
+    return res.end("event: close\ndata:\n\n");
+  }
+
   let query = "";
   if (req.method === "GET") {
     query = req.query.query as unknown as string;
@@ -128,6 +147,7 @@ const sseHandler = async (req: Request, res: Response) => {
   const abortController = new AbortController();
 
   // 调用模型 API 传入历史所有消息
+
   const stream = await model.stream(messages, {
     signal: abortController.signal,
   });
@@ -167,9 +187,8 @@ const sseHandler = async (req: Request, res: Response) => {
     }
   } catch (error) {
     // 可以在这里处理前端的主动中断动作
-    console.error(error);
+    console.error("模型请求被中断:", error);
   }
-  console.log("🚀 ~ messages:", messages);
 
   // 保存本次模型回复，即便中途断开导致不完整。
   messages.push(new AIMessage(reply));
