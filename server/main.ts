@@ -63,7 +63,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "http://127.0.0.2:80",
     methods: ["GET", "POST"],
     credentials: false,
   }),
@@ -222,6 +222,6 @@ app.get("/sse", sseHandler);
  */
 app.post("/sse", sseHandler);
 
-app.listen(3000, () => {
+app.listen(3001, () => {
   console.log("Server is running on port 3000");
 });
