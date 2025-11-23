@@ -9,11 +9,19 @@ import {
 } from "@langchain/core/messages";
 import cors from "cors";
 
-import type { ChatMessage } from "../src/types/chatMessage-type";
+export type ChatMessage = {
+  type: "user" | "assistant";
+  partial?: boolean;
+  payload: {
+    content: string;
+  };
+};
 
 let API_KEY = process.env.API_KEY || "";
 const BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1";
 const MODEL = "qwen-turbo";
+
+const router = express.Router();
 
 // 创建模型实例
 function doCreateModel() {
@@ -27,7 +35,6 @@ function doCreateModel() {
     streaming: true,
   });
 }
-let model = doCreateModel();
 // 提示词
 const messages: BaseMessage[] = [
   new SystemMessage(`
@@ -63,14 +70,17 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://127.0.0.2:80",
-    methods: ["GET", "POST"],
+    origin: (origin, cb) => {
+      cb(null, true);
+    },
+    methods: ["GET", "POST", "OPTIONS"],
     credentials: false,
   }),
 );
+app.use("/chat-bot/v1", router);
 
 //历史消息(暂时不写)
-app.get("/history", (req, res) => {
+router.get("/history", (req, res) => {
   const historyMessages: ChatMessage[] = messages
     .map((message) => {
       if (message instanceof HumanMessage) {
@@ -92,7 +102,7 @@ app.get("/history", (req, res) => {
 });
 
 //删除历史消息
-app.post("/delete-message", (req, res) => {
+router.post("/delete-message", (req, res) => {
   if (messages?.length > 0) {
     messages.splice(0, messages.length);
     res.json({ success: true, data: "删除消息成功" });
@@ -102,11 +112,10 @@ app.post("/delete-message", (req, res) => {
 });
 
 // 存储 API Key
-app.post("/api-key", (req, res) => {
+router.post("/api-key", (req, res) => {
   const apiKey = req.body.apiKey;
   if (apiKey) {
     API_KEY = apiKey;
-    model = doCreateModel();
     res.json({ success: true, data: "API Key 存储成功" });
   } else {
     res.json({ success: false, data: "API Key 不能为空" });
@@ -144,7 +153,20 @@ const sseHandler = async (req: Request, res: Response) => {
   if (req.method === "POST") {
     query = req.body.query;
   }
-
+  // 此时，doCreateModel() 将使用最新的 API_KEY
+  let model: ChatOpenAI;
+  try {
+    model = doCreateModel();
+  } catch (error) {
+    console.log("🚀 ~ sseHandler ~ error:", error);
+    // 如果创建模型实例时失败（例如 key 格式无效），也返回错误
+    const msg = {
+      type: "error",
+      payload: { content: "模型初始化失败，请检查 API Key 格式。" },
+    };
+    res.write(`data: ${JSON.stringify(msg)}\n\n`);
+    return res.end("event: close\ndata:\n\n");
+  }
   messages.push(new HumanMessage(query));
 
   const abortController = new AbortController();
@@ -164,6 +186,7 @@ const sseHandler = async (req: Request, res: Response) => {
       payload: { content: (error as any)?.error?.message || "" },
     };
     // SSE 错误信息
+    console.log("🚀 ~ sseHandler ~ JSON.stringify(msg):", JSON.stringify(msg));
     res.write(`data: ${JSON.stringify(msg)}\n\n`);
 
     // 发送 close 事件
@@ -215,13 +238,13 @@ const sseHandler = async (req: Request, res: Response) => {
 /**
  * SSE 通信接口（EventSource GET 版本）
  */
-app.get("/sse", sseHandler);
+router.get("/sse", sseHandler);
 
 /**
  * SSE 通信接口（fetch POST 版本）
  */
-app.post("/sse", sseHandler);
+router.post("/sse", sseHandler);
 
 app.listen(3001, () => {
-  console.log("Server is running on port 3000");
+  console.log("Server is running on port 3001");
 });

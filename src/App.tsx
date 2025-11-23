@@ -56,7 +56,7 @@ function App() {
   }, [theme]);
 
   useMount(async () => {
-    const response = await fetch(BASE_URL + "history");
+    const response = await fetch(BASE_URL + "history", { credentials: "omit" });
     const historyMessages = await response.json().catch(() => []);
     setReply(historyMessages);
   });
@@ -111,6 +111,7 @@ function App() {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "omit",
       signal: ctrl.signal,
 
       onmessage(ev) {

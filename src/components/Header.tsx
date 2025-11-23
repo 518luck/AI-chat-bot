@@ -31,6 +31,7 @@ const Header = ({ onDeleted }: HeaderProps) => {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "omit",
       body: JSON.stringify({ apiKey }),
     });
   };
@@ -39,6 +40,7 @@ const Header = ({ onDeleted }: HeaderProps) => {
   const handleDeleteMessage = async () => {
     return await fetch(BASE_URL + "delete-message", {
       method: "POST",
+      credentials: "omit",
     });
   };
 

@@ -5,10 +5,21 @@ import { resolve } from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "/chat-bot/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       "@": resolve(__dirname, "src"),
+    },
+  },
+  server: {
+    proxy: {
+      "/chat-bot/v1": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+        ws: true,
+        secure: false,
+      },
     },
   },
 });
