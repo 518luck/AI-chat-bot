@@ -179,7 +179,7 @@ function App() {
           },
         )}
       >
-        <section className="max-w-[750px]">
+        <section className="w-full max-w-[750px]">
           {/* 标题 */}
           {!reply.length && (
             <section>

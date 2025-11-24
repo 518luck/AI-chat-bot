@@ -27,13 +27,13 @@ const Message = ({ reply }: { reply: ChatMessage[] }) => {
           {reply.map((item, index) => (
             <div
               key={index}
-              className={cs("flex w-[750px]", {
+              className={cs("flex w-full max-w-[750px]", {
                 "justify-end": item.type === "user",
               })}
             >
               <div
                 className={cs(
-                  "prose prose-sm dark:prose-invert s crollbar-thin mb-9 inline-flex min-h-9 w-fit flex-col overflow-x-auto rounded-2xl p-4 wrap-break-word",
+                  "prose prose-sm dark:prose-invert s crollbar-thin mb-9 min-h-9 flex-col overflow-x-auto rounded-2xl p-4 wrap-break-word",
                   {
                     "max-w-[448px] bg-[#f4f4f4] dark:bg-[#303030]":
                       item.type === "user",
